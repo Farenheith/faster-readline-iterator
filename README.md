@@ -3,7 +3,8 @@
 [![test-coverage](https://github.com/Farenheith/faster-readable-iterator/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/Farenheith/faster-readable-iterator/actions/workflows/test-coverage.yml)
 
 # faster-readable-iterator
-A faster version for the readline's implementation of Symbol.asyncIterator
+A faster version for the readline's implementation of Symbol.asyncIterator.
+With this version, you can achieve a performance 20% to 58% better than with the vanilla one.
 
 # how to install
 
