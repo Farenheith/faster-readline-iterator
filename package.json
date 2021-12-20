@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "A fster version of readline's implementation of Symbol.asyncIterator",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "lib"
+  ],
   "scripts": {
     "lint": "npm run lint:format && npm run lint:style",
     "lint:fix": "npm run lint:format:fix && npm run lint:style:fix",
