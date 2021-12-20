@@ -17,7 +17,7 @@ Condimentum mattis pellentesque id nibh tortor id aliquet lectus proin.
 Diam in arcu cursus euismod quis viverra nibh.
 `;
 
-const REPETITIONS = 1000;
+const REPETITIONS = 10000;
 const SAMPLE = 100;
 const THRESHOLD = 81;
 
