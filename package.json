@@ -1,7 +1,7 @@
 {
-  "name": "faster-readable-iterator",
+  "name": "faster-readline-iterator",
   "version": "0.0.1",
-  "description": "A fster version of readable's implementation of Symbol.asyncIterator",
+  "description": "A fster version of readline's implementation of Symbol.asyncIterator",
   "main": "index.js",
   "scripts": {
     "lint": "npm run lint:format && npm run lint:style",
