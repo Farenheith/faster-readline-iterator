@@ -1,5 +1,6 @@
 const PAUSE_THRESHOLD = 2048;
 const RESUME_THRESHOLD = 0;
+
 let FixedQueue;
 
 exports.getReadlineIterable = function getReadlineIterable(readable) {
