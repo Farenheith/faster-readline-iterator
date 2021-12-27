@@ -54,7 +54,7 @@ module.exports = {
           max: 11,
         },
       ],
-      curly: ['error', 'multi-line'],
+      curly: 'off',
       'default-case': 'error',
       'eol-last': 'error',
       eqeqeq: ['error', 'smart'],

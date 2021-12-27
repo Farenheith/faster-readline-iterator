@@ -1,4 +1,4 @@
-import { getReadlineIterable } from '../index';
+import { getReadLineIterableFromStream, getReadlineIterable } from '../index';
 import { createInterface } from 'readline';
 import { Readable } from 'stream';
 
@@ -38,8 +38,10 @@ describe(getReadlineIterable.name, () => {
 	it('should be faster than vanilla', async () => {
 		let totalTimeVanillaWay = 0;
 		let totalTimeNewWay = 0;
+		let totalTimeNewerWay = 0;
 		let totalCharsVanillaWay = 0;
 		let totalCharsNewWay = 0;
+		let totalCharsNewerWay = 0;
 		for (let time = 0; time < SAMPLE; time++) {
 			const rlVanillaWay = createInterface({
 				input: getLoremIpsumStream(),
@@ -64,12 +66,24 @@ describe(getReadlineIterable.name, () => {
 			}
 			currentTotalTimeNewWay = Date.now() - currentTotalTimeNewWay;
 			totalTimeNewWay = getAvg(totalTimeNewWay, currentTotalTimeNewWay, SAMPLE);
+
+			const rlNewerWay = getReadLineIterableFromStream(getLoremIpsumStream());
+			let currentTotalTimeNewerWay = Date.now();
+			for await (const line of rlNewerWay) {
+				totalCharsNewerWay += line.length;
+			}
+			currentTotalTimeNewerWay = Date.now() - currentTotalTimeNewerWay;
+			totalTimeNewerWay = getAvg(totalTimeNewerWay, currentTotalTimeNewerWay, SAMPLE);
 		}
 
 		expect(totalCharsNewWay).toBe(totalCharsVanillaWay);
-		const percentage = (totalTimeNewWay * 100) / totalTimeVanillaWay;
-		expect(percentage).toBeLessThanOrEqual(THRESHOLD);
-		console.log(`Percentage: ${percentage}`);
+		expect(totalCharsNewerWay).toBe(totalCharsVanillaWay);
+		const newPercentage = (totalTimeNewWay * 100) / totalTimeVanillaWay;
+		expect(newPercentage).toBeLessThanOrEqual(THRESHOLD);
+		console.log(`New Percentage: ${newPercentage}`);
+		const newerPercentage = (totalTimeNewerWay * 100) / totalTimeVanillaWay;
+		// expect(newerPercentage).toBeLessThanOrEqual(THRESHOLD);
+		console.log(`Newer Percentage: ${newerPercentage}`);
 	});
 
 	it('should yield exactly as vanilla one', async () => {
@@ -87,7 +101,12 @@ describe(getReadlineIterable.name, () => {
 		for await (const line of getReadlineIterable(rlNewWay)) {
 			timeNewWay.push(line);
 		}
+    const timeNewerWay = [];
+		for await (const line of getReadLineIterableFromStream(getLoremIpsumStream())) {
+			timeNewerWay.push(line);
+		}
 
 		expect(vanillaWay).toEqual(timeNewWay);
+		expect(vanillaWay).toEqual(timeNewerWay);
 	});
 });
