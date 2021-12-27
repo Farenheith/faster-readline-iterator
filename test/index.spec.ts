@@ -123,7 +123,7 @@ describe(getReadlineIterable.name, () => {
 		for await (const chunk of getLoremIpsumStream()) {
 			chunks.push(chunk.toString());
 		}
-		function* splitLines(string: string) {
+		function splitLines(string: string): IterableIterator<string> {
 			let start = 0;
 			let end = 0;
 
@@ -152,7 +152,7 @@ describe(getReadlineIterable.name, () => {
 			nextEnd();
 
 			return {
-				next() {
+				next(): IteratorResult<string> {
 					if (end === -1) {
 						if (start < string.length - 1) {
 							const value = string.substr(start);
@@ -162,7 +162,7 @@ describe(getReadlineIterable.name, () => {
 								kLine_buffer = value;
 							}
 						}
-						return { done: true };
+						return { done: true } as IteratorResult<string>;
 					}
 					let value = string.substr(start, end - start);
 					if (kLine_buffer) {
