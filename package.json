@@ -29,10 +29,12 @@
   },
   "homepage": "https://github.com/Farenheith/faster-readable-iterator#readme",
   "devDependencies": {
+    "@types/benchmark": "^2.1.1",
     "@types/jest": "^27.0.3",
     "@types/semantic-release": "^17.2.3",
     "@typescript-eslint/eslint-plugin": "^5.8.0",
     "@typescript-eslint/parser": "^5.8.0",
+    "benchmark": "^2.1.4",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

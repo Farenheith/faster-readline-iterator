@@ -1,6 +1,7 @@
 import { getReadLineIterableFromStream, getReadlineIterable } from '../index';
 import { createInterface } from 'readline';
 import { Readable } from 'stream';
+import benchmark = require('benchmark');
 
 jest.setTimeout(9999999);
 
@@ -73,7 +74,11 @@ describe(getReadlineIterable.name, () => {
 				totalCharsNewerWay += line.length;
 			}
 			currentTotalTimeNewerWay = Date.now() - currentTotalTimeNewerWay;
-			totalTimeNewerWay = getAvg(totalTimeNewerWay, currentTotalTimeNewerWay, SAMPLE);
+			totalTimeNewerWay = getAvg(
+				totalTimeNewerWay,
+				currentTotalTimeNewerWay,
+				SAMPLE,
+			);
 		}
 
 		expect(totalCharsNewWay).toBe(totalCharsVanillaWay);
@@ -101,12 +106,122 @@ describe(getReadlineIterable.name, () => {
 		for await (const line of getReadlineIterable(rlNewWay)) {
 			timeNewWay.push(line);
 		}
-    const timeNewerWay = [];
-		for await (const line of getReadLineIterableFromStream(getLoremIpsumStream())) {
+		const timeNewerWay = [];
+		for await (const line of getReadLineIterableFromStream(
+			getLoremIpsumStream(),
+		)) {
 			timeNewerWay.push(line);
 		}
 
 		expect(vanillaWay).toEqual(timeNewWay);
 		expect(vanillaWay).toEqual(timeNewerWay);
+	});
+
+	it('split benchmark', async () => {
+		let kLine_buffer: string | undefined | null;
+		const chunks: string[] = [];
+		for await (const chunk of getLoremIpsumStream()) {
+			chunks.push(chunk.toString());
+		}
+		function* splitLines(string: string) {
+			let start = 0;
+			let end = 0;
+
+			function nextEnd() {
+				const lastEnd = end;
+				end = string.indexOf('\n', lastEnd);
+				if (end === -1) {
+					end = string.indexOf('\r', lastEnd);
+				}
+			}
+
+			function nextLine() {
+				end++;
+				if (string[end] === '\r') {
+					end++;
+					if (string[end] === '\n') {
+						end++;
+					}
+				} else if (string[end] === '\n') {
+					end++;
+				}
+				start = end;
+				nextEnd();
+			}
+
+			nextEnd();
+
+			return {
+				next() {
+					if (end === -1) {
+						if (start < string.length - 1) {
+							const value = string.substr(start);
+							if (kLine_buffer) {
+								kLine_buffer += value;
+							} else {
+								kLine_buffer = value;
+							}
+						}
+						return { done: true };
+					}
+					let value = string.substr(start, end - start);
+					if (kLine_buffer) {
+						value = kLine_buffer + value;
+						kLine_buffer = null;
+					}
+					const result = {
+						done: false,
+						value,
+					};
+					nextLine();
+
+					return result;
+				},
+				[Symbol.iterator]() {
+					return this;
+				},
+			};
+		}
+		const lineEnding = /\r?\n|\r(?!\n)/;
+		let log = '';
+
+		new benchmark.Suite()
+			.add('vanilla split', () => {
+				kLine_buffer = null;
+				const result: string[] = [];
+				for (const chunk of chunks) {
+					for (const line of splitLines(chunk)) {
+						result.push(line);
+					}
+				}
+				if (kLine_buffer) {
+					result.push(kLine_buffer);
+				}
+			})
+			.add('new split', () => {
+				kLine_buffer = null;
+				const result: string[] = [];
+				for (const chunk of chunks) {
+					const split = chunk.split(lineEnding);
+					kLine_buffer = split.pop();
+					if (split.length > 0) {
+						split[0] = kLine_buffer + split[0];
+						kLine_buffer = undefined;
+						for (let i = 0; i < split.length; i++) {
+							result.push(split[i]);
+						}
+					}
+				}
+				if (kLine_buffer) {
+					result.push(kLine_buffer);
+				}
+			})
+			.on('cycle', function (event: any) {
+				log += `${event.target}\n`;
+			})
+			.on('complete', function (this: any) {
+				console.log(log);
+			})
+			.run();
 	});
 });

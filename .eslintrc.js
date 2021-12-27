@@ -46,7 +46,7 @@ module.exports = {
         },
       ],
       '@typescript-eslint/semi': ['error', 'always'],
-      camelcase: 'error',
+      camelcase: 'off',
       'comma-dangle': ['error', 'always-multiline'],
       complexity: [
         'off',
